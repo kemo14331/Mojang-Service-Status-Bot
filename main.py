@@ -63,10 +63,10 @@ def update_profile(status: dict):
     msg = ""
     msg += "Services Status:\n"
     show_list = (
+        "minecraft.net",
         "session.minecraft.net",
         "account.mojang.com",
         "sessionserver.mojang.com",
-        "skins.minecraft.net",
         "authserver.mojang.com",
         "textures.minecraft.net"
     )
