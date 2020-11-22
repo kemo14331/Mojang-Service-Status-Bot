@@ -93,7 +93,6 @@ def task():
         service_status_change = False
         if rebooted:
             update_profile(status)
-            tweet_online_services(["minecraft.net"])
             rebooted = False
         else:
             back_online_services = []
