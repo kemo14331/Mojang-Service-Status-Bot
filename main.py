@@ -1,5 +1,7 @@
 import os
 import time
+import glob
+import base64
 from datetime import datetime
 from pprint import pprint
 
@@ -9,6 +11,7 @@ import tweepy
 from mojang import MojangAPI
 
 from service import ServiceState
+from image_gene import make_image
 
 wait_time = 90
 
@@ -24,6 +27,9 @@ waiting_send_list = {}
 auth = tweepy.OAuthHandler(CK, CS)
 auth.set_access_token(AT, AS)
 api = tweepy.API(auth)
+
+if not os.path.exists("./tmp"):
+    os.mkdir("./tmp")
 
 print("api connected")
 
@@ -104,7 +110,6 @@ def tweet_unavailable_services(services: list):
     except Exception as e:
         print(e)
 
-
 def update_profile(status: dict):
     msg = ""
     msg += "Services Status:\n"
@@ -126,7 +131,9 @@ def update_profile(status: dict):
                 msg += f"💀{service}\n"
     try:
         print("update profile")
-        api.update_profile(description=msg)
+        make_image(status)
+        api.update_profile_banner(filename="./tmp/tmp.png")
+        #api.update_profile(description=msg)
     except Exception as e:
         print(e)
         pprint(msg.rstrip())
@@ -150,7 +157,7 @@ def task():
                     service_status_change = True
                     if(status[service] == "green" or status[service] == "red"):
                         status_changed_services[service] = ServiceState(
-                        status=status[service], last_changed_time=datetime.now())
+                            status=status[service], last_changed_time=datetime.now())
 
         if service_status_change:
             update_profile(status)
