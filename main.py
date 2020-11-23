@@ -54,7 +54,7 @@ def tweet_services_status(status_changed_services: dict):
         else:
             waiting_send_list[service] = status_changed_services[service]
 
-    for service in waiting_send_list:
+    for service in waiting_send_list.keys():
         if waiting_send_list[service].get_elapsed_time().total_seconds >= wait_time:
             if waiting_send_list[service].status == "green":
                 online_services.append(service)
