@@ -55,11 +55,12 @@ def tweet_services_status(status_changed_services: dict):
             waiting_send_list[service] = status_changed_services[service]
 
     for service in waiting_send_list.keys():
-        if waiting_send_list[service].get_elapsed_time().total_seconds >= wait_time:
+        if waiting_send_list[service].get_elapsed_time().total_seconds() >= wait_time:
             if waiting_send_list[service].status == "green":
                 online_services.append(service)
             elif waiting_send_list[service].status == "red":
                 unavailable_services.append(service)
+            del waiting_send_list[service]
 
     if len(status_changed_services.keys()) > 0:
         print("===detected status of service changed===")
