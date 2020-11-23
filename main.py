@@ -1,12 +1,16 @@
 import os
 import time
-import datetime
+from datetime import datetime
 from pprint import pprint
 
 import emoji
 import schedule
 import tweepy
 from mojang import MojangAPI
+
+from service import ServiceState
+
+wait_time = 90
 
 CK = os.environ["ConsumerKey"]
 CS = os.environ["ConsumerSecret"]
@@ -15,6 +19,7 @@ AS = os.environ["AccessTokenSecret"]
 
 rebooted = True
 service_status_list = {}
+waiting_send_list = {}
 
 auth = tweepy.OAuthHandler(CK, CS)
 auth.set_access_token(AT, AS)
@@ -24,18 +29,57 @@ print("api connected")
 
 
 def get_timestamp():
-    timestamp = datetime.datetime.today()
+    timestamp = datetime.today()
     return str(timestamp.strftime("%Y/%m/%d %H:%M"))
+
+
+def tweet_services_status(status_changed_services: dict):
+    global wait_time
+    global waiting_send_list
+
+    online_services = []
+    unavailable_services = []
+
+    for service in status_changed_services.keys():
+        if service in waiting_send_list:
+            if waiting_send_list[service].get_elapsed_time().total_seconds() < wait_time:
+                print(f"delete from waiting_send_list: {service}")
+                del waiting_send_list[service]
+        else:
+            waiting_send_list[service] = status_changed_services[service]
+
+    for service in waiting_send_list:
+        if waiting_send_list[service].get_elapsed_time().total_seconds >= wait_time:
+            if waiting_send_list[service].status == "green":
+                online_services.append(service)
+            elif waiting_send_list[service].status == "red":
+                unavailable_services.append(service)
+
+    if len(status_changed_services) > 0:
+        print("===detected status of service changed===")
+        print("waiting_send_list:")
+        pprint(waiting_send_list)
+        print("========================================")
+
+    if len(online_services) > 0:
+        tweet_online_services(online_services)
+
+    if len(unavailable_services) > 0:
+        tweet_unavailable_services(unavailable_services)
+
 
 def tweet_online_services(services: list):
     print("tweet online services.")
     msg = "✅The service has returned to normal.\n"
+
     if len(services) == 1:
         msg += "Service:\n"
     else:
         msg += "Services:\n"
+
     for service in services:
         msg += service + '\n'
+
     msg += "\n" + get_timestamp()
     try:
         api.update_status(status=msg)
@@ -46,10 +90,12 @@ def tweet_online_services(services: list):
 def tweet_unavailable_services(services: list):
     print("tweet unavailable services.")
     msg = "❌The service has be currently unavailable.\n"
+
     if len(services) == 1:
         msg += "Service:\n"
     else:
         msg += "Services:\n"
+
     for service in services:
         msg += service + '\n'
     msg += "\n" + get_timestamp()
@@ -92,27 +138,23 @@ def task():
     try:
         status = MojangAPI.get_api_status()
         service_status_change = False
+        status_changed_services = {}
+
         if rebooted:
             update_profile(status)
             rebooted = False
         else:
-            back_online_services = []
-            unavailable_services = []
+            status_changed_services = {}
             for service in status.keys():
                 if(service_status_list[service] != status[service]):
                     service_status_change = True
-                    if status[service] == "green":
-                        back_online_services.append(service)
-                    elif status[service] == "red":
-                        unavailable_services.append(service)
-                    else:
-                        continue
+                    status_changed_services[service] = ServiceState(
+                        status=status[service], last_changed_time=datetime.now())
+
         if service_status_change:
             update_profile(status)
-            if len(back_online_services) > 0:
-                tweet_online_services(back_online_services)
-            if len(unavailable_services) > 0:
-                tweet_unavailable_services(unavailable_services)
+
+        tweet_services_status(status_changed_services)
         service_status_list = status
     except Exception as e:
         print(e)
