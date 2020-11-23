@@ -61,7 +61,7 @@ def tweet_services_status(status_changed_services: dict):
             elif waiting_send_list[service].status == "red":
                 unavailable_services.append(service)
 
-    if len(status_changed_services) > 0:
+    if len(status_changed_services.keys()) > 0:
         print("===detected status of service changed===")
         print("waiting_send_list:")
         pprint(waiting_send_list)
