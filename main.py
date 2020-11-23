@@ -148,8 +148,9 @@ def task():
             for service in status.keys():
                 if(service_status_list[service] != status[service]):
                     service_status_change = True
-                    status_changed_services[service] = ServiceState(
-                        status=status[service], last_changed_time=datetime.now())
+                    if(status[service] == "green" or status[service] == "red"):
+                        status_changed_services[service] = ServiceState(
+                            status=status[service], last_changed_time=datetime.now())
 
         if service_status_change:
             update_profile(status)
