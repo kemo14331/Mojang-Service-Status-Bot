@@ -119,11 +119,11 @@ def update_profile(status: dict):
     for service in status.keys():
         if service in show_list:
             if status[service] == "green":
-                msg += f"🟢{service}\n"
+                msg += f"😃{service}\n"
             elif status[service] == "yellow":
-                msg += f"🟡{service}\n"
+                msg += f"😰{service}\n"
             elif status[service] == "red":
-                msg += f"🔴{service}\n"
+                msg += f"💀{service}\n"
     try:
         print("update profile")
         api.update_profile(description=msg)
@@ -150,7 +150,7 @@ def task():
                     service_status_change = True
                     if(status[service] == "green" or status[service] == "red"):
                         status_changed_services[service] = ServiceState(
-                            status=status[service], last_changed_time=datetime.now())
+                        status=status[service], last_changed_time=datetime.now())
 
         if service_status_change:
             update_profile(status)
