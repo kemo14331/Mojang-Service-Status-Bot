@@ -46,7 +46,7 @@ def tweet_services_status(status_changed_services: dict):
     online_services = []
     unavailable_services = []
 
-    for service in status_changed_services.keys():
+    for service in list(status_changed_services.keys()):
         if service in waiting_send_list:
             if waiting_send_list[service].get_elapsed_time().total_seconds() < wait_time:
                 print(f"delete from waiting_send_list: {service}")
@@ -54,7 +54,7 @@ def tweet_services_status(status_changed_services: dict):
         else:
             waiting_send_list[service] = status_changed_services[service]
 
-    for service in waiting_send_list.keys():
+    for service in list(waiting_send_list.keys()):
         if waiting_send_list[service].get_elapsed_time().total_seconds() >= wait_time:
             if waiting_send_list[service].status == "green":
                 online_services.append(service)
