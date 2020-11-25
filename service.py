@@ -7,4 +7,4 @@ class ServiceState():
         self.last_changed_time = last_changed_time
 
     def get_elapsed_time(self):
-        return datetime.now() - self.last_changed_time
+        return datetime.utcnow() - self.last_changed_time
