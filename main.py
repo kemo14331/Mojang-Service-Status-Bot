@@ -35,7 +35,7 @@ def tweet_services_status(status_changed_services: dict):
     unavailable_services = []
 
     for service in list(status_changed_services.keys()):
-        if service in waiting_send_list:
+        if service in waiting_send_list.keys():
             if waiting_send_list[service].get_elapsed_time().total_seconds() < wait_time:
                 print(f"delete from waiting_send_list: {service}")
                 del waiting_send_list[service]
@@ -117,7 +117,7 @@ def task():
                     service_status_change = True
                     if is_status_should_notify(status[service], service):
                         status_changed_services[service] = ServiceState(
-                            status=status[service], last_changed_time=datetime.now())
+                            status=status[service], last_changed_time=datetime.utcnow())
 
         if service_status_change:
             update_profile(status)
