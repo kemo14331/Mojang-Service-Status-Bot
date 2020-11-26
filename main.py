@@ -95,7 +95,7 @@ def is_status_should_notify(status: str, service: str):
     global service_status_list
     if service_status_list[service] == "red":
         return True
-    elif status[service] == "red":
+    elif status == "red":
         return True
     return False
 
