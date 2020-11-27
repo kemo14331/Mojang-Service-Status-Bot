@@ -64,8 +64,8 @@ def tweet_services_status(status_changed_services: dict):
 
 def get_services_msg(services: list):
     msg = "Service:\n" if len(services) == 1 else "Services:\n"
-    msg.join(list(map(lambda service: service + "\n", services)))
-    msg += "\n" + get_timestamp()
+    msg += "\n".join(services)
+    msg += "\n\n" + get_timestamp()
 
 
 ONLINE, UNAVAILABLE = 0, 1
